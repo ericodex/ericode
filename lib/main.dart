@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 import 'providers.dart';
 
@@ -40,6 +39,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+const minWidth = 500.0;
+const maxWidth = 900.0;
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -51,13 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    print(width);
     return Scaffold(
       body: width < 400
           ? Center(
             child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'Tela muito pequena\npara exibir o conteúdo',
+                  'Tela muito\npequena para\nexibir o conteúdo',
                   style: Theme.of(context).textTheme.displayMedium,
                 )),
           )
@@ -68,16 +71,17 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 40),
               ConstrainedBox(
                 constraints: const BoxConstraints(
-                  minWidth: 500.0,
-                  maxWidth: 900.0,
+                  minWidth: minWidth,
+                  maxWidth: maxWidth,
                 ),
                 child: Card(
+                  elevation: 2,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(25, 8, 25, 8),
                     child: Column(
                       children: [
                         if (width < 700)
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.all(13.0),
                             child: PictureProfileCircleAvatar(),
                           ),
@@ -140,18 +144,64 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.brightness_4),
-                onPressed: () {
-                  final themeChange =
-                      Provider.of<ThemeProvider>(context, listen: false);
-                  themeChange.darkMode = !themeChange.darkMode;
-                },
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: minWidth,
+                        maxWidth: maxWidth,
+                ),
+                child: Card(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        tooltip: 'Email',
+                        onPressed: () {
+                        
+                      }, icon: const Icon(Icons.email)),
+                      IconButton(
+                        tooltip: 'GitHub',
+                        onPressed: () {
+                        
+                      }, icon: const Icon(Bootstrap.github)),
+                      const ThemePreferenceIconButton(),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class ThemePreferenceIconButton extends StatefulWidget {
+  const ThemePreferenceIconButton({
+    super.key,
+  });
+
+  @override
+  State<ThemePreferenceIconButton> createState() => _ThemePreferenceIconButtonState();
+}
+
+class _ThemePreferenceIconButtonState extends State<ThemePreferenceIconButton> {
+  
+  //get system theme preference
+  void getSystemTheme() {
+    final themeChange = Provider.of<ThemeProvider>(context);
+    themeChange.darkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    final themeChange = Provider.of<ThemeProvider>(context);
+    return IconButton(
+      icon: Icon(!themeChange.darkMode ? Icons.brightness_2 : Icons.brightness_high),
+      onPressed: () {
+        
+        themeChange.darkMode = !themeChange.darkMode;
+      },
     );
   }
 }
