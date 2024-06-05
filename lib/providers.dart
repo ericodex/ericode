@@ -1,15 +1,16 @@
+import 'package:ericode/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ThemeProvider with ChangeNotifier {
   ThemePreference themePreference = ThemePreference();
-  bool _darkTheme = false;
+  String _themePreference = ThemeTypes.system;
 
-  bool get darkMode => _darkTheme;
+  String get preference => _themePreference;
 
-  set darkMode(bool value) {
-    _darkTheme = value;
+  set preference(String value) {
+    _themePreference = value;
     themePreference.setDarkTheme(value);
     notifyListeners();
   }
@@ -18,13 +19,13 @@ class ThemeProvider with ChangeNotifier {
 class ThemePreference {
   static const themeStatus = "themeStatus";
 
-  setDarkTheme(bool value) async {
+  setDarkTheme(String value) async {
     SharedPreferences preference = await SharedPreferences.getInstance();
-    preference.setBool(themeStatus, value);
+    preference.setString(themeStatus, value);
   }
 
-  Future<bool> getTheme() async {
+  Future<String> getTheme() async {
     SharedPreferences preference = await SharedPreferences.getInstance();
-    return preference.getBool(themeStatus) ?? false;
+    return preference.getString(themeStatus)!;
   }
 }

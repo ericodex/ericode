@@ -17,6 +17,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final systemPreference =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -28,10 +30,22 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-              brightness:
-                  themeChange.darkMode ? Brightness.dark : Brightness.light,
-              seedColor: Color.fromARGB(
-                  255, 0, (255 * 0.25).toInt(), (255 * 0.26).toInt()),
+              brightness: themeChange.preference == ThemeTypes.system
+                  ? systemPreference
+                      ? Brightness.dark
+                      : Brightness.light
+                  : themeChange.preference == ThemeTypes.dark
+                      ? Brightness.dark
+                      : Brightness.light,
+              seedColor: themeChange.preference == ThemeTypes.system
+                  ? systemPreference
+                      ? Colors.green.shade900
+                      : Color.fromARGB(
+                          255, 0, (255 * 0.25).toInt(), (255 * 0.26).toInt())
+                  : themeChange.preference == ThemeTypes.dark
+                      ? Colors.green.shade900
+                      : Color.fromARGB(
+                          255, 0, (255 * 0.25).toInt(), (255 * 0.26).toInt()),
             ),
             useMaterial3: true,
           ),
@@ -73,6 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
       return (width - min) / (max - min);
     }
   }
+
+  final Uri _urlMailTo = Uri.parse('mailto: ericodigos@gmail.com');
   final Uri _urlGithub = Uri.parse('https://github.com/ericodex');
   final Uri _urlLinkedin = Uri.parse('https://www.linkedin.com/in/ericodigos/');
 
@@ -230,16 +246,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               IconButton(
-                                  tooltip: 'Copiar email\nericodigos@gmail.com',
+                                  tooltip: 'Enviar email\nericodigos@gmail.com',
                                   onPressed: () async {
-                                    await Clipboard.setData(const ClipboardData(
-                                        text: 'ericodigos@gmail.com'));
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Email copiado!'),
-                                      ),
-                                    );
+                                    if (!await launchUrl(_urlMailTo)) {
+                                      throw Exception(
+                                          'Could not launch $_urlMailTo');
+                                    }
                                   },
                                   icon: const Icon(Icons.email)),
                               IconButton(
@@ -247,7 +259,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   onPressed: () async {
                                     // open github profile in browser https://github.com/ericodex
                                     if (!await launchUrl(_urlGithub)) {
-                                      throw Exception('Could not launch $_urlGithub');
+                                      throw Exception(
+                                          'Could not launch $_urlGithub');
                                     }
                                   },
                                   icon: const Icon(Bootstrap.github)),
@@ -255,7 +268,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   tooltip: 'LinkedIn',
                                   onPressed: () async {
                                     if (!await launchUrl(_urlLinkedin)) {
-                                      throw Exception('Could not launch $_urlGithub');
+                                      throw Exception(
+                                          'Could not launch $_urlGithub');
                                     }
                                   },
                                   icon: const Icon(Bootstrap.linkedin)),
@@ -284,20 +298,26 @@ class ThemePreferenceIconButton extends StatefulWidget {
 
 class _ThemePreferenceIconButtonState extends State<ThemePreferenceIconButton> {
   //get system theme preference
-  void getSystemTheme() {
-    final themeChange = Provider.of<ThemeProvider>(context);
-    themeChange.darkMode =
-        MediaQuery.of(context).platformBrightness == Brightness.dark;
-  }
 
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<ThemeProvider>(context);
     return IconButton(
-      icon: Icon(
-          !themeChange.darkMode ? Icons.brightness_2 : Icons.brightness_high),
+      tooltip:
+          '${themeChange.preference == ThemeTypes.system ? 'Sistema' : themeChange.preference == ThemeTypes.dark ? 'Escuro' : 'Claro'}\nAlterar tema',
+      icon: Icon(themeChange.preference == ThemeTypes.system
+          ? Icons.data_object_rounded
+          : themeChange.preference == ThemeTypes.dark
+              ? Icons.brightness_7
+              : Icons.brightness_high),
       onPressed: () {
-        themeChange.darkMode = !themeChange.darkMode;
+        if (themeChange.preference == ThemeTypes.system) {
+          themeChange.preference = ThemeTypes.light;
+        } else if (themeChange.preference == ThemeTypes.light) {
+          themeChange.preference = ThemeTypes.dark;
+        } else if (themeChange.preference == ThemeTypes.dark) {
+          themeChange.preference = ThemeTypes.system;
+        }
       },
     );
   }
@@ -311,8 +331,16 @@ class PictureProfileCircleAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 50,
+      radius: 50 + (_MyHomePageState().widthProportion(context) * 50),
       backgroundImage: AssetImage('assets/images/foto_eric.jpg'),
     );
   }
+}
+
+class ThemeTypes {
+  static const String dark = 'dark';
+  static const String light = 'light';
+  static const String system = 'system';
+
+  static const List<String> themesList = [dark, light, system];
 }
