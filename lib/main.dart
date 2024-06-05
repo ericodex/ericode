@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:email_sender/email_sender.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'providers.dart';
 
@@ -57,6 +58,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String _language = 'PT-br';
+
+  int max = 1000;
+  int min = 600;
+
+  double widthProportion(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width <= min) {
+      return 0;
+    } else if (width >= max) {
+      return 1;
+    } else {
+      return (width - min) / (max - min);
+    }
+  }
+  final Uri _urlGithub = Uri.parse('https://github.com/ericodex');
+  final Uri _urlLinkedin = Uri.parse('https://www.linkedin.com/in/ericodigos/');
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -73,16 +92,55 @@ class _MyHomePageState extends State<MyHomePage> {
           : SingleChildScrollView(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding:
+                      EdgeInsets.all(8.0 + (widthProportion(context) * 10)),
                   child: Column(
                     children: <Widget>[
                       ConstrainedBox(
                         constraints: boxConstraints,
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SizedBox(height: 40),
-                            ThemePreferenceIconButton(),
+                            SizedBox(
+                                height: 20 + (widthProportion(context) * 10)),
+                            SizedBox(
+                              height: 25,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  children: [
+                                    Text(_language,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge),
+                                    const SizedBox(width: 4),
+                                    Tooltip(
+                                      message: _language == 'PT-br'
+                                          ? 'Mudar idioma para inglês'
+                                          : 'Change language to portuguese',
+                                      child: Switch(
+                                        materialTapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        value:
+                                            _language == 'PT-br' ? true : false,
+                                        onChanged: (value) {
+                                          if (value) {
+                                            setState(() {
+                                              _language = 'PT-br';
+                                            });
+                                          } else {
+                                            setState(() {
+                                              _language = 'EN-us';
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const ThemePreferenceIconButton(),
                           ],
                         ),
                       ),
@@ -164,6 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 8 * (widthProportion(context))),
                       ConstrainedBox(
                         constraints: boxConstraints,
                         child: Card(
@@ -171,19 +230,34 @@ class _MyHomePageState extends State<MyHomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               IconButton(
-                                  tooltip: 'Email',
-                                  onPressed: () {
-                                    
+                                  tooltip: 'Copiar email\nericodigos@gmail.com',
+                                  onPressed: () async {
+                                    await Clipboard.setData(const ClipboardData(
+                                        text: 'ericodigos@gmail.com'));
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Email copiado!'),
+                                      ),
+                                    );
                                   },
                                   icon: const Icon(Icons.email)),
                               IconButton(
                                   tooltip: 'GitHub',
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    // open github profile in browser https://github.com/ericodex
+                                    if (!await launchUrl(_urlGithub)) {
+                                      throw Exception('Could not launch $_urlGithub');
+                                    }
+                                  },
                                   icon: const Icon(Bootstrap.github)),
-                              
                               IconButton(
                                   tooltip: 'LinkedIn',
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    if (!await launchUrl(_urlLinkedin)) {
+                                      throw Exception('Could not launch $_urlGithub');
+                                    }
+                                  },
                                   icon: const Icon(Bootstrap.linkedin)),
                             ],
                           ),
