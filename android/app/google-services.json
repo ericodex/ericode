@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "687377719086",
+    "project_id": "eric0de",
+    "storage_bucket": "eric0de.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:687377719086:android:c4b6fada984261c9f024bf",
+        "android_client_info": {
+          "package_name": "com.example.ericode"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARCR0-NJh_6ySlefN3GB8CzE7Ka0HSsyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
