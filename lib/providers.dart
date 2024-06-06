@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemePreference themePreference = ThemePreference();
-  String _themePreference = ThemeTypes.system;
+  String _themePreference = ThemeTypes.light;
 
   String get preference => _themePreference;
 

@@ -17,8 +17,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final systemPreference =
-        MediaQuery.of(context).platformBrightness == Brightness.dark;
+        
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -30,19 +29,10 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-              brightness: themeChange.preference == ThemeTypes.system
-                  ? systemPreference
-                      ? Brightness.dark
-                      : Brightness.light
-                  : themeChange.preference == ThemeTypes.dark
+              brightness: themeChange.preference == ThemeTypes.dark
                       ? Brightness.dark
                       : Brightness.light,
-              seedColor: themeChange.preference == ThemeTypes.system
-                  ? systemPreference
-                      ? Colors.green.shade900
-                      : Color.fromARGB(
-                          255, 0, (255 * 0.25).toInt(), (255 * 0.26).toInt())
-                  : themeChange.preference == ThemeTypes.dark
+              seedColor: themeChange.preference == ThemeTypes.dark
                       ? Colors.green.shade900
                       : Color.fromARGB(
                           255, 0, (255 * 0.25).toInt(), (255 * 0.26).toInt()),
@@ -74,6 +64,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String _language = 'PT-br';
 
+  @override
+  void initState() {
+    super.initState();
+    
+    
+  }
+
   int max = 1000;
   int min = 600;
 
@@ -94,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: width < 400
@@ -209,8 +207,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                              'Especialista em desenvolvimento de sistemas multiplataforma '
-                                              'utilizando o Dart/Flutter. ',
+                                              'Especialista em desenvolvimento de sistemas multiplataforma, '
+                                              'responsivos, adaptativos utilizando as convenções do Material Design. '
+                                              ' Arquitetura com microsserviços híbridos e CI/CD, '
+                                              'clean code, testes unitários e integrados e monitoramento.',	
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyMedium),
@@ -303,20 +303,15 @@ class _ThemePreferenceIconButtonState extends State<ThemePreferenceIconButton> {
   Widget build(BuildContext context) {
     final themeChange = Provider.of<ThemeProvider>(context);
     return IconButton(
-      tooltip:
-          '${themeChange.preference == ThemeTypes.system ? 'Sistema' : themeChange.preference == ThemeTypes.dark ? 'Escuro' : 'Claro'}\nAlterar tema',
-      icon: Icon(themeChange.preference == ThemeTypes.system
-          ? Icons.data_object_rounded
-          : themeChange.preference == ThemeTypes.dark
-              ? Icons.brightness_7
-              : Icons.brightness_high),
+      tooltip:'Alterar tema',
+      icon: Icon(themeChange.preference == ThemeTypes.light
+              ? Icons.brightness_2 
+              : Icons.brightness_7),
       onPressed: () {
-        if (themeChange.preference == ThemeTypes.system) {
-          themeChange.preference = ThemeTypes.light;
-        } else if (themeChange.preference == ThemeTypes.light) {
+        if (themeChange.preference == ThemeTypes.light) {
           themeChange.preference = ThemeTypes.dark;
         } else if (themeChange.preference == ThemeTypes.dark) {
-          themeChange.preference = ThemeTypes.system;
+          themeChange.preference = ThemeTypes.light;
         }
       },
     );
